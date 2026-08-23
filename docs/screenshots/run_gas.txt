@@ -1,0 +1,7 @@
+﻿=== CLAP AI OCR POC ===
+file     : samples\jp_gas_delivery_sakura.pdf
+method   : text_layer
+status   : draft (Draft / µ£¬τó║σ«Ü)
+fields   : ['company_name', 'invoice_date', 'billing_period', 'activity_unit', 'activity_amount']
+evidence : 4 snippets
+output   : output\jp_gas_delivery_sakura_draft.json
