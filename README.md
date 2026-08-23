@@ -56,16 +56,16 @@ Client-style dummy docs (WOV2 AI sample pack):
 - `samples/jp_electricity_invoice_sakura.pdf` — 電力請求書
 - `samples/jp_gas_delivery_sakura.pdf` — 都市ガス納品伝票
 
-## GitLab (git.vmo.dev)
+## Remote (GitHub private)
 
-1. Add SSH public key for this laptop: [SSH Keys](https://git.vmo.dev/-/user_settings/ssh_keys) → **Add new key**
-2. Create empty project on GitLab (e.g. `WOV2/clap-ai-ocr-poc`)
-3. Push:
+Upstream: https://github.com/willtran112358/clap-ai-ocr-poc (**private**)
 
 ```bash
-git remote add origin git@git.vmo.dev:GROUP/clap-ai-ocr-poc.git
 git push -u origin main
 ```
+
+`origin` → `willtran112358/clap-ai-ocr-poc`  
+GitLab VMO had no create-project permission — use this until a VMO project exists.
 
 ## Layout
 
