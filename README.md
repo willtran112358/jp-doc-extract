@@ -37,7 +37,8 @@ Latest batch evidence: [docs/evidence/batch_summary.json](docs/evidence/batch_su
 
 ## What it does / does not
 
-- **Does:** PDF text-layer / CSV / XLSX → doc_type classify → field map → Draft JSON + evidence snippets.
+- **Does:** PDF text-layer / CSV (utf-8+cp932) / XLSX → **JP text normalize (NFKC)** → doc_type → field map → Draft JSON + evidence.
+- **JP-oriented:** fullwidth digits/punct, ideographic spaces, `発行日/お客様名/使用電力量/ご請求額合計`, amount with `円`, period `YYYY年M月`.
 - **Does not:** Salesforce write, Agentforce, cloud OCR API, auto-save Core.
 
 Scan-only PDFs (`ocr_needed`): Phase-2 Azure DI / Document AI / EasyOCR (JP).

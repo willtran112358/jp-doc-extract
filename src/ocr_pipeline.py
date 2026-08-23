@@ -1,6 +1,6 @@
 """
-CLAP AI Extraction POC — JP sample docs → Draft JSON
-Supports: PDF (text layer), CSV, XLSX
+CLAP AI Extraction POC — JP-optimized extract → Draft JSON
+Supports: PDF (text layer), CSV (utf-8/cp932), XLSX
 """
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import argparse
 import csv
 import json
 import re
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -15,45 +16,114 @@ import pymupdf as fitz
 
 try:
     from openpyxl import load_workbook
-except ImportError:  # optional until pip install
+except ImportError:
     load_workbook = None
 
+# After NFKC: numbers/ASCII normalized; keep JP keywords + flexible separators
+NUM = r"([\d,]+(?:\.\d+)?)"
+SEP = r"[\s　:：]*"
+GAP = r"[\s　\n]{0,40}"
 
 FIELD_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     (
         "company_name",
         re.compile(
-            r"((?:株式会社|有限会社)[\w一-龥ぁ-んァ-ヶー・]+|"
-            r"[\w一-龥ぁ-んァ-ヶー・]+(?:株式会社|有限会社)|"
-            r"[A-Za-z][A-Za-z0-9 .,&\-]{2,40}(?:Co\.,?\s*Ltd\.|Corporation|Inc\.))"
+            r"("
+            r"(?:株式会社|有限会社|合同会社)[一-龥ぁ-んァ-ヶーA-Za-z0-9・･]{1,40}"
+            r"|"
+            r"[一-龥ぁ-んァ-ヶーA-Za-z0-9・･]{1,40}(?:株式会社|有限会社|合同会社)"
+            r"|"
+            r"[A-Za-z][A-Za-z0-9 .,&\-]{2,50}(?:Co\.,?\s*Ltd\.|Corporation|Inc\.)"
+            r")"
         ),
     ),
-    ("customer_name", re.compile(r"(?:お客様名|供給先名|納品先|検証対象)[：:\s]*([^\n]{4,60})")),
-    ("invoice_no", re.compile(r"(?:請求書番号|伝票番号|納品書番号|計量票番号|Invoice\s*No\.?)[：:\s]*([A-Za-z0-9\-]+)")),
-    ("invoice_date", re.compile(r"(?:発行日|作成日)[：:\s]*(20\d{2})[年/\-.](\d{1,2})[月/\-.](\d{1,2})")),
-    ("invoice_date_iso", re.compile(r"(?:発行日|Date)[：:\s]*(20\d{2})-(\d{1,2})-(\d{1,2})")),
-    ("billing_period", re.compile(r"(20\d{2}年\d{1,2}月(?:分|度)?)|(20\d{2}年\d{1,2}月\s*[～\-]\s*20\d{2}年\d{1,2}月)")),
     (
-        "activity_amount",
+        "customer_name",
         re.compile(
-            r"(?:使用量|電力量|ガス使用量|数量|納入量|重量|Volume|Quantity)"
-            r"[^\d]{0,20}([\d,]+(?:\.\d+)?)\s*(kWh|m3|m³|kg|t|トン|L|㎥)?",
+            r"(?:お客様名|供給先名|納品先|検証対象|お客様)"
+            + SEP
+            + r"([^\n]{3,80})"
+        ),
+    ),
+    (
+        "invoice_no",
+        re.compile(
+            r"(?:請求書番号|伝票番号|納品書番号|計量票番号|文書番号|Invoice\s*No\.?)"
+            + SEP
+            + r"([A-Za-z0-9\-_/]+)",
             re.I,
         ),
     ),
-    ("activity_kwh", re.compile(r"([\d,]+(?:\.\d+)?)\s*kWh", re.I)),
-    ("activity_m3", re.compile(r"([\d,]+(?:\.\d+)?)\s*(?:m3|m³|㎥)", re.I)),
-    ("amount_yen", re.compile(r"(?:ご請求金額|請求金額|税込|合計金額|請求金額サマリー)[^\d]{0,20}[¥￥]?\s*([\d,]+)\s*円?")),
+    (
+        "invoice_date",
+        re.compile(
+            r"(?:発行日|作成日|お支払期限)"
+            + SEP
+            + r"(20\d{2})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日?"
+        ),
+    ),
+    (
+        "invoice_date_iso",
+        re.compile(r"(?:発行日|Date)" + SEP + r"(20\d{2})-(\d{1,2})-(\d{1,2})", re.I),
+    ),
+    (
+        "billing_period",
+        re.compile(
+            r"(?:ご使用期間|対象期間|対象|請求)"
+            + SEP
+            + r"("
+            r"20\d{2}年\d{1,2}月(?:分|度)?"
+            r"|"
+            r"20\d{2}年\d{1,2}月\d{1,2}日\s*[〜～\-~]\s*20\d{2}年\d{1,2}月\d{1,2}日"
+            r"|"
+            r"20\d{2}年\d{1,2}月\s*[〜～\-~]\s*20\d{2}年\d{1,2}月"
+            r")"
+        ),
+    ),
+    (
+        "billing_period_loose",
+        re.compile(r"(20\d{2}年\d{1,2}月(?:分|度)?)"),
+    ),
+    (
+        "activity_amount",
+        re.compile(
+            r"(?:使用電力量|使用量|電力量|ガス使用量|数量|納入量|重量|Volume|Quantity)"
+            + GAP
+            + NUM
+            + r"\s*(kWh|m3|m³|kg|t|トン|L|㎥)?",
+            re.I,
+        ),
+    ),
+    ("activity_kwh", re.compile(NUM + r"\s*kWh", re.I)),
+    ("activity_m3", re.compile(NUM + r"\s*(?:m3|m³|㎥)", re.I)),
+    (
+        "amount_yen",
+        re.compile(
+            r"(?:ご請求額合計|ご請求金額|請求金額|税込合計|合計金額|請求金額サマリー|当月お買上額)"
+            r"(?:[(（][^)）\n]{0,20}[)）])?"
+            + GAP
+            + r"[¥￥]?\s*"
+            + NUM
+            + r"\s*円?",
+            re.I,
+        ),
+    ),
     (
         "emission_tco2e",
-        re.compile(r"(?:Scope\s*[123]|排出量|t-?CO2e?)[^\d]{0,24}([\d,]+(?:\.\d+)?)\s*(?:t-?CO2e?)?", re.I),
+        re.compile(
+            r"(?:Scope\s*[123]|総排出量|排出量|温室効果ガス)"
+            + GAP
+            + NUM
+            + r"\s*(?:t-?CO2e?|トン)?",
+            re.I,
+        ),
     ),
-    ("fiscal_year", re.compile(r"(FY\s*20\d{2}|FYE?\s*3/20\d{2}|20\d{2}年度)")),
+    ("fiscal_year", re.compile(r"(FY\s*20\d{2}|FYE?\s*3/20\d{2}|20\d{2}年度|令和\d{1,2}年度)", re.I)),
 ]
 
 DOC_TYPE_RULES: list[tuple[str, re.Pattern[str]]] = [
-    ("electricity_invoice", re.compile(r"電気|電力|kWh|ご使用量のお知らせ")),
-    ("gas_invoice", re.compile(r"ガス|都市ガス|m³|m3")),
+    ("electricity_invoice", re.compile(r"電気|電力|kWh|ご使用量のお知らせ|御請求書")),
+    ("gas_invoice", re.compile(r"ガス|都市ガス|m³|m3|供給計量票")),
     ("shipping_invoice", re.compile(r"SHIPPING|海上輸送|Invoice", re.I)),
     ("coal_ticket", re.compile(r"石炭|煤炭|COAL", re.I)),
     ("milk_delivery", re.compile(r"生乳|納品書")),
@@ -63,26 +133,43 @@ DOC_TYPE_RULES: list[tuple[str, re.Pattern[str]]] = [
 ]
 
 
+def normalize_jp_text(text: str) -> str:
+    """NFKC + JP whitespace/punctuation cleanup for stable regex."""
+    if not text:
+        return ""
+    t = unicodedata.normalize("NFKC", text)
+    t = t.replace("\u00a0", " ")
+    t = t.replace("〜", "～")
+    # collapse runs of spaces but keep newlines (field layout)
+    t = re.sub(r"[^\S\n]+", " ", t)
+    t = re.sub(r"\n{3,}", "\n\n", t)
+    return t.strip()
+
+
+def normalize_number(value: str) -> str:
+    v = unicodedata.normalize("NFKC", value)
+    return v.replace(",", "").replace("，", "").strip()
+
+
 def classify_doc(text: str, name: str) -> str:
     n = name.lower()
-    if any(k in n for k in ["電力", "electricity", "denryoku"]):
+    if any(k in name or k in n for k in ["電力", "electricity"]):
         return "electricity_invoice"
-    if any(k in n for k in ["ガス", "gas"]):
+    if any(k in name or k in n for k in ["ガス", "gas"]):
         return "gas_invoice"
-    if any(k in n for k in ["coal", "石炭", "海上", "shipping", "invoice"]):
-        if "coal" in n or "石炭" in name:
-            return "coal_ticket"
-        if "shipping" in n or "海上" in name:
-            return "shipping_invoice"
-    if any(k in n for k in ["生乳", "milk", "納品"]):
+    if "coal" in n or "石炭" in name:
+        return "coal_ticket"
+    if "shipping" in n or "海上" in name:
+        return "shipping_invoice"
+    if any(k in name or k in n for k in ["生乳", "milk"]):
         return "milk_delivery"
-    if any(k in n for k in ["profile", "企業概要", "概要"]):
+    if any(k in name or k in n for k in ["profile", "企業概要"]):
         return "company_profile"
-    if any(k in n for k in ["sustainability", "サステナ"]):
+    if any(k in name or k in n for k in ["sustainability", "サステナ"]):
         return "sustainability_report"
-    if any(k in n for k in ["evidence", "検証", "監査", "survey", "エビデンス"]):
+    if any(k in name or k in n for k in ["evidence", "検証", "監査", "survey", "エビデンス"]):
         return "verification_evidence"
-    if any(k in n for k in ["activity", "活動量", "ghg_calc", "排出", "emission", "fuel", "site_list"]):
+    if any(k in name or k in n for k in ["activity", "活動量", "ghg_calc", "排出", "emission", "fuel", "site_list"]):
         return "activity_table"
     blob = f"{name}\n{text[:1500]}"
     for label, pat in DOC_TYPE_RULES:
@@ -95,20 +182,33 @@ def extract_text_pdf(pdf_path: Path) -> tuple[str, str]:
     doc = fitz.open(pdf_path)
     parts = [page.get_text("text") for page in doc]
     doc.close()
-    text = "\n".join(parts).strip()
+    text = normalize_jp_text("\n".join(parts))
     return (text, "text_layer") if len(text) >= 20 else (text, "ocr_needed")
 
 
-def extract_text_csv(path: Path) -> tuple[str, str]:
+def _read_csv_rows(path: Path) -> list[str]:
+    raw = path.read_bytes()
+    text = None
+    for enc in ("utf-8-sig", "cp932", "shift_jis", "utf-8"):
+        try:
+            text = raw.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    if text is None:
+        text = raw.decode("utf-8", errors="replace")
+    text = normalize_jp_text(text)
     rows: list[str] = []
-    with path.open(encoding="utf-8-sig", errors="replace", newline="") as f:
-        reader = csv.reader(f)
-        for i, row in enumerate(reader):
-            if i > 120:
-                break
-            rows.append(" | ".join(row))
+    for i, line in enumerate(csv.reader(text.splitlines())):
+        if i > 120:
+            break
+        rows.append(" | ".join(line))
+    return rows
+
+
+def extract_text_csv(path: Path) -> tuple[str, str]:
+    rows = _read_csv_rows(path)
     text = "\n".join(rows)
-    # Flatten header hints for regex (JP activity tables)
     header = rows[0] if rows else ""
     if re.search(r"使用量|電力量|kWh|排出|CO2|活動量|燃料", header, re.I):
         text = header + "\n" + text
@@ -129,7 +229,7 @@ def extract_text_xlsx(path: Path) -> tuple[str, str]:
             if cells:
                 rows.append(" | ".join(cells))
     wb.close()
-    return "\n".join(rows), "xlsx_parse"
+    return normalize_jp_text("\n".join(rows)), "xlsx_parse"
 
 
 def extract_text(path: Path) -> tuple[str, str]:
@@ -152,12 +252,13 @@ def _set_field(fields: dict, evidence: list, name: str, value: str, snippet: str
             "field": name,
             "snippet": snippet[:140],
             "page": 1,
-            "source": "regex_on_extracted_text",
+            "source": "regex_on_jp_normalized_text",
         }
     )
 
 
 def map_fields(text: str) -> dict:
+    text = normalize_jp_text(text)
     fields: dict = {}
     evidence: list = []
 
@@ -167,27 +268,35 @@ def map_fields(text: str) -> dict:
             continue
         if name in {"invoice_date", "invoice_date_iso"} and m.lastindex and m.lastindex >= 3:
             value = f"{m.group(1)}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
-            _set_field(fields, evidence, "invoice_date", value, m.group(0), 0.88)
+            _set_field(fields, evidence, "invoice_date", value, m.group(0), 0.9)
         elif name == "activity_amount":
-            value = m.group(1).replace(",", "")
+            value = normalize_number(m.group(1))
             unit = (m.group(2) or "").replace("トン", "t").replace("㎥", "m3")
-            _set_field(fields, evidence, "activity_amount", value, m.group(0), 0.8)
+            _set_field(fields, evidence, "activity_amount", value, m.group(0), 0.84)
             if unit:
-                _set_field(fields, evidence, "activity_unit", unit, m.group(0), 0.78)
+                _set_field(fields, evidence, "activity_unit", unit, m.group(0), 0.82)
         elif name == "activity_kwh":
-            _set_field(fields, evidence, "activity_amount", m.group(1).replace(",", ""), m.group(0), 0.82)
-            _set_field(fields, evidence, "activity_unit", "kWh", m.group(0), 0.85)
+            _set_field(fields, evidence, "activity_amount", normalize_number(m.group(1)), m.group(0), 0.86)
+            _set_field(fields, evidence, "activity_unit", "kWh", m.group(0), 0.88)
         elif name == "activity_m3":
-            _set_field(fields, evidence, "activity_amount", m.group(1).replace(",", ""), m.group(0), 0.82)
-            _set_field(fields, evidence, "activity_unit", "m3", m.group(0), 0.85)
+            _set_field(fields, evidence, "activity_amount", normalize_number(m.group(1)), m.group(0), 0.86)
+            _set_field(fields, evidence, "activity_unit", "m3", m.group(0), 0.88)
         elif name == "emission_tco2e":
-            _set_field(fields, evidence, "emission_tco2e", m.group(1).replace(",", ""), m.group(0), 0.7)
-        elif name == "billing_period":
+            _set_field(fields, evidence, "emission_tco2e", normalize_number(m.group(1)), m.group(0), 0.72)
+        elif name in {"billing_period", "billing_period_loose"}:
             value = next((g for g in m.groups() if g), m.group(0))
-            _set_field(fields, evidence, "billing_period", value, m.group(0), 0.8)
+            _set_field(fields, evidence, "billing_period", value.strip(), m.group(0), 0.84)
+        elif name == "amount_yen":
+            _set_field(fields, evidence, "amount_yen", normalize_number(m.group(1)), m.group(0), 0.86)
+        elif name == "customer_name":
+            # stop at extra spaces / factory suffix noise lightly
+            value = re.split(r"\s{2,}|　", m.group(1).strip())[0].strip()
+            _set_field(fields, evidence, "customer_name", value, m.group(0), 0.88)
         else:
-            value = m.group(1).replace(",", "") if m.lastindex else m.group(0)
-            conf = 0.86 if name in {"company_name", "customer_name", "invoice_no"} else 0.75
+            value = m.group(1) if m.lastindex else m.group(0)
+            if name in {"activity_amount", "amount_yen", "emission_tco2e"}:
+                value = normalize_number(value)
+            conf = 0.9 if name in {"company_name", "invoice_no"} else 0.8
             _set_field(fields, evidence, name, value.strip(), m.group(0), conf)
 
     return {"fields": fields, "evidence": evidence}
@@ -204,6 +313,7 @@ def build_draft(path: Path, text: str, method: str, mapped: dict) -> dict:
         "source_dir": path.parent.name,
         "doc_type": doc_type,
         "extract_method": method,
+        "jp_text_normalized": True,
         "warning": (
             None
             if method in {"text_layer", "csv_parse", "xlsx_parse"}
@@ -226,7 +336,7 @@ def run(path: Path, out_dir: Path) -> Path:
     mapped = map_fields(text)
     draft = build_draft(path, text, method, mapped)
     out_dir.mkdir(parents=True, exist_ok=True)
-    safe = re.sub(r"[^\w.\-]+", "_", path.stem)[:80]
+    safe = re.sub(r"[^\w.\-]+", "_", path.stem, flags=re.UNICODE)[:80]
     out_path = out_dir / f"{safe}_draft.json"
     out_path.write_text(json.dumps(draft, ensure_ascii=False, indent=2), encoding="utf-8")
     return out_path
@@ -234,8 +344,7 @@ def run(path: Path, out_dir: Path) -> Path:
 
 def iter_samples(root: Path) -> list[Path]:
     exts = {".pdf", ".csv", ".xlsx"}
-    files = [p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in exts]
-    return sorted(files)
+    return sorted(p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in exts)
 
 
 def run_batch(root: Path, out_dir: Path) -> Path:
@@ -246,7 +355,7 @@ def run_batch(root: Path, out_dir: Path) -> Path:
             draft = json.loads(out.read_text(encoding="utf-8"))
             summary.append(
                 {
-                    "file": str(path.relative_to(root)) if root in path.parents or path.parent == root else path.name,
+                    "file": str(path.relative_to(root)),
                     "doc_type": draft["doc_type"],
                     "method": draft["extract_method"],
                     "fields": list(draft["draft_ghg"].keys()),
@@ -260,7 +369,7 @@ def run_batch(root: Path, out_dir: Path) -> Path:
                 f"OK  {path.parent.name}/{path.name} → "
                 f"{draft['doc_type']} fields={len(draft['draft_ghg'])} evidence={len(draft['evidence_history'])}"
             )
-        except Exception as exc:  # noqa: BLE001 — batch must continue
+        except Exception as exc:  # noqa: BLE001
             summary.append({"file": path.name, "ok": False, "error": str(exc)})
             print(f"ERR {path.name}: {exc}")
 
@@ -269,6 +378,7 @@ def run_batch(root: Path, out_dir: Path) -> Path:
         "sample_root": str(root),
         "total": len(summary),
         "ok": sum(1 for s in summary if s.get("ok")),
+        "jp_optimized": True,
         "results": summary,
     }
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -294,12 +404,14 @@ def main() -> None:
 
     out_path = run(path, Path(args.out))
     draft = json.loads(out_path.read_text(encoding="utf-8"))
-    print("=== CLAP AI OCR POC ===")
+    print("=== CLAP AI OCR POC (JP-optimized) ===")
     print(f"file     : {path}")
     print(f"doc_type : {draft['doc_type']}")
     print(f"method   : {draft['extract_method']}")
     print(f"status   : {draft['status']} (Draft / 未確定)")
     print(f"fields   : {list(draft['draft_ghg'].keys())}")
+    for k, v in draft["draft_ghg"].items():
+        print(f"  - {k}: {v.get('value')} (conf={v.get('confidence')})")
     print(f"evidence : {len(draft['evidence_history'])} snippets")
     print(f"output   : {out_path}")
     if draft.get("warning"):
