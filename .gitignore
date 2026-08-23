@@ -1,0 +1,12 @@
+# clap-ai-ocr-poc
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+output/*
+!output/.gitkeep
+.DS_Store
+*.log
+.env
+.idea/
+.vscode/
