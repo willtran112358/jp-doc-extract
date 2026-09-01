@@ -32,33 +32,23 @@ def render(path: Path, title: str, lines: list[str], width: int = 1000) -> None:
     font, font_b = fonts()
     pad, lh = 22, 22
     h = pad * 2 + lh * (len(lines) + 2)
-    # Light theme — easier to read in README / docs
-    bg = "#ffffff"
-    border = "#d0d7de"
-    title_color = "#0969da"
-    prompt_color = "#116329"
-    ok_color = "#116329"
-    err_color = "#cf222e"
-    accent_color = "#0550ae"
-    text_color = "#24292f"
-
-    img = Image.new("RGB", (width, h), bg)
+    # Dark terminal theme
+    img = Image.new("RGB", (width, h), "#0d1117")
     draw = ImageDraw.Draw(img)
-    draw.rectangle([0, 0, width - 1, h - 1], outline=border, width=1)
     y = pad
-    draw.text((pad, y), title, fill=title_color, font=font_b)
+    draw.text((pad, y), title, fill="#58a6ff", font=font_b)
     y += lh + 6
     for line in lines:
         if line.startswith("PS>") or line.startswith("$"):
-            color = prompt_color
+            color = "#3fb950"
         elif line.startswith("OK"):
-            color = ok_color
+            color = "#3fb950"
         elif line.startswith("ERR"):
-            color = err_color
+            color = "#f85149"
         elif line.startswith("===") or line.startswith("Batch"):
-            color = accent_color
+            color = "#79c0ff"
         else:
-            color = text_color
+            color = "#c9d1d9"
         draw.text((pad, y), line[:105], fill=color, font=font)
         y += lh
     img.save(path)
