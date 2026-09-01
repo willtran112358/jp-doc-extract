@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "tool": "jp-doc-extract",
   "status": "draft",
-  "created_at": "2026-09-01T06:42:38.375954+00:00",
+  "created_at": "2026-09-01T06:45:03.915579+00:00",
   "source_file": "sample_gas_delivery.pdf",
   "doc_type": "gas_invoice",
   "extract_method": "text_layer",

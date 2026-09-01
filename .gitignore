@@ -5,6 +5,7 @@ __pycache__/
 .pytest_cache/
 output/*
 !output/.gitkeep
+samples/client_pack/
 .DS_Store
 *.log
 .env

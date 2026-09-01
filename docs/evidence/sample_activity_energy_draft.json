@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "tool": "jp-doc-extract",
   "status": "draft",
-  "created_at": "2026-09-01T06:42:38.326292+00:00",
+  "created_at": "2026-09-01T06:45:03.875694+00:00",
   "source_file": "sample_activity_energy.csv",
   "doc_type": "activity_table",
   "extract_method": "csv_parse",

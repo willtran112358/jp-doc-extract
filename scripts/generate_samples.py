@@ -42,9 +42,10 @@ def _write_pdf(name: str, lines: list[str]) -> None:
                 page.insert_font(fontname=fontname, fontfile=fontfile)
             y = 50
     path = SAMPLES / name
-    doc.save(path)
+    doc.subset_fonts(verbose=False)
+    doc.save(path, garbage=4, deflate=True)
     doc.close()
-    print("wrote", path)
+    print("wrote", path, f"({path.stat().st_size // 1024} KB)")
 
 
 def main() -> None:
