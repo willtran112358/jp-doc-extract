@@ -32,22 +32,33 @@ def render(path: Path, title: str, lines: list[str], width: int = 1000) -> None:
     font, font_b = fonts()
     pad, lh = 22, 22
     h = pad * 2 + lh * (len(lines) + 2)
-    img = Image.new("RGB", (width, h), "#0d1117")
+    # Light theme — easier to read in README / docs
+    bg = "#ffffff"
+    border = "#d0d7de"
+    title_color = "#0969da"
+    prompt_color = "#116329"
+    ok_color = "#116329"
+    err_color = "#cf222e"
+    accent_color = "#0550ae"
+    text_color = "#24292f"
+
+    img = Image.new("RGB", (width, h), bg)
     draw = ImageDraw.Draw(img)
+    draw.rectangle([0, 0, width - 1, h - 1], outline=border, width=1)
     y = pad
-    draw.text((pad, y), title, fill="#58a6ff", font=font_b)
+    draw.text((pad, y), title, fill=title_color, font=font_b)
     y += lh + 6
     for line in lines:
         if line.startswith("PS>") or line.startswith("$"):
-            color = "#3fb950"
+            color = prompt_color
         elif line.startswith("OK"):
-            color = "#3fb950"
+            color = ok_color
         elif line.startswith("ERR"):
-            color = "#f85149"
+            color = err_color
         elif line.startswith("===") or line.startswith("Batch"):
-            color = "#79c0ff"
+            color = accent_color
         else:
-            color = "#c9d1d9"
+            color = text_color
         draw.text((pad, y), line[:105], fill=color, font=font)
         y += lh
     img.save(path)
@@ -81,11 +92,11 @@ def main() -> None:
     for r in report.get("results", [])[:5]:
         if r.get("ok"):
             batch_lines.append(
-                f"OK  {r['file']} → {r['doc_type']} fields={r['field_count']}"
+                f"OK  {r['file']} -> {r['doc_type']} fields={r['field_count']}"
             )
     batch_lines += [
         "...",
-        f"Batch: {report['ok']}/{report['total']} OK → output/batch_summary.json",
+        f"Batch: {report['ok']}/{report['total']} OK -> output/batch_summary.json",
     ]
     render(SHOT / "02_batch.png", "Step 2 — Batch run (bundled samples)", batch_lines)
 
