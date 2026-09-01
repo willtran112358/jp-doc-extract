@@ -48,6 +48,16 @@ python src/pipeline.py scan.pdf --mode paddle
 python src/pipeline.py scan.pdf --mode vlm
 ```
 
+### PaddleOCR benchmark (JP invoice)
+
+```bash
+python scripts/download_paddle_models.py
+python scripts/make_scan_sample.py
+python scripts/benchmark_paddle.py
+```
+
+See [docs/PADDLE_BENCHMARK.md](docs/PADDLE_BENCHMARK.md). `--mode paddle` adds `ocr_stats` (line confidence) to Draft JSON.
+
 ## Screenshots
 
 | Step | Screenshot |

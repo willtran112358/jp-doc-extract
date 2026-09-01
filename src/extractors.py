@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pymupdf as fitz
 
+from extract_result import ExtractResult
 from mapper import normalize_jp_text
 
 try:
@@ -16,15 +17,16 @@ except ImportError:
     load_workbook = None
 
 
-def extract_text_pdf_text_layer(pdf_path: Path) -> tuple[str, str]:
+def extract_text_pdf_text_layer(pdf_path: Path) -> ExtractResult:
     doc = fitz.open(pdf_path)
     parts = [page.get_text("text") for page in doc]
     doc.close()
     text = normalize_jp_text("\n".join(parts))
-    return (text, "text_layer") if len(text) >= 20 else (text, "ocr_needed")
+    method = "text_layer" if len(text) >= 20 else "ocr_needed"
+    return ExtractResult(text=text, method=method)
 
 
-def pdf_to_images(pdf_path: Path, max_pages: int = 5, dpi: int = 150) -> list[bytes]:
+def pdf_to_images(pdf_path: Path, max_pages: int = 5, dpi: int = 200) -> list[bytes]:
     doc = fitz.open(pdf_path)
     images: list[bytes] = []
     zoom = dpi / 72
@@ -38,34 +40,18 @@ def pdf_to_images(pdf_path: Path, max_pages: int = 5, dpi: int = 150) -> list[by
     return images
 
 
-def extract_text_paddle(pdf_path: Path, max_pages: int = 5) -> tuple[str, str]:
-    try:
-        from paddleocr import PaddleOCR  # type: ignore[import-untyped]
-    except ImportError as exc:
-        raise RuntimeError(
-            "PaddleOCR not installed. Run: pip install -r requirements-optional.txt"
-        ) from exc
+def extract_text_paddle(pdf_path: Path, max_pages: int = 5, dpi: int = 200) -> ExtractResult:
+    from paddle_ocr import run_paddle_on_images
 
-    ocr = PaddleOCR(use_angle_cls=True, lang="japan", show_log=False)
-    lines: list[str] = []
-    for i, img_bytes in enumerate(pdf_to_images(pdf_path, max_pages=max_pages)):
-        import tempfile
-
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-            tmp.write(img_bytes)
-            tmp_path = tmp.name
-        result = ocr.ocr(tmp_path, cls=True)
-        Path(tmp_path).unlink(missing_ok=True)
-        if result and result[0]:
-            for line in result[0]:
-                if line and len(line) > 1:
-                    lines.append(line[1][0])
-        lines.append(f"[page:{i + 1}]")
-    text = normalize_jp_text("\n".join(lines))
-    return text, "paddle_ocr_jp"
+    images = pdf_to_images(pdf_path, max_pages=max_pages, dpi=dpi)
+    if not images:
+        return ExtractResult(text="", method="paddle_ocr_jp", ocr_stats={"error": "no pages"})
+    result = run_paddle_on_images(images, dpi=dpi)
+    text = normalize_jp_text(result.text)
+    return ExtractResult(text=text, method="paddle_ocr_jp", ocr_stats=result.to_dict())
 
 
-def extract_text_vlm(pdf_path: Path, max_pages: int = 3) -> tuple[str, str]:
+def extract_text_vlm(pdf_path: Path, max_pages: int = 3) -> ExtractResult:
     import base64
     import os
 
@@ -104,7 +90,7 @@ def extract_text_vlm(pdf_path: Path, max_pages: int = 3) -> tuple[str, str]:
         messages=[{"role": "user", "content": content}],
     )
     text = normalize_jp_text("".join(block.text for block in msg.content if hasattr(block, "text")))
-    return text, "vlm_claude_vision"
+    return ExtractResult(text=text, method="vlm_claude_vision")
 
 
 def _read_csv_rows(path: Path) -> list[str]:
@@ -127,18 +113,18 @@ def _read_csv_rows(path: Path) -> list[str]:
     return rows
 
 
-def extract_text_csv(path: Path) -> tuple[str, str]:
+def extract_text_csv(path: Path) -> ExtractResult:
     rows = _read_csv_rows(path)
     text = "\n".join(rows)
     header = rows[0] if rows else ""
     if re.search(r"使用量|電力量|kWh|排出|CO2|活動量|燃料", header, re.I):
         text = header + "\n" + text
-    return text, "csv_parse"
+    return ExtractResult(text=text, method="csv_parse")
 
 
-def extract_text_xlsx(path: Path) -> tuple[str, str]:
+def extract_text_xlsx(path: Path) -> ExtractResult:
     if load_workbook is None:
-        return "", "xlsx_needs_openpyxl"
+        return ExtractResult(text="", method="xlsx_needs_openpyxl")
     wb = load_workbook(path, read_only=True, data_only=True)
     rows: list[str] = []
     for ws in wb.worksheets[:3]:
@@ -150,20 +136,18 @@ def extract_text_xlsx(path: Path) -> tuple[str, str]:
             if cells:
                 rows.append(" | ".join(cells))
     wb.close()
-    return normalize_jp_text("\n".join(rows)), "xlsx_parse"
+    return ExtractResult(text=normalize_jp_text("\n".join(rows)), method="xlsx_parse")
 
 
-def extract_text(path: Path, mode: str = "auto") -> tuple[str, str]:
+def extract_text(path: Path, mode: str = "auto", dpi: int = 200) -> ExtractResult:
     suffix = path.suffix.lower()
     if suffix == ".pdf":
         if mode == "paddle":
-            return extract_text_paddle(path)
+            return extract_text_paddle(path, dpi=dpi)
         if mode == "vlm":
             return extract_text_vlm(path)
-        text, method = extract_text_pdf_text_layer(path)
-        if method == "ocr_needed" and mode == "auto":
-            return text, method
-        return text, method
+        result = extract_text_pdf_text_layer(path)
+        return result
     if suffix == ".csv":
         return extract_text_csv(path)
     if suffix in {".xlsx", ".xlsm"}:

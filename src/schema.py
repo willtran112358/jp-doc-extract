@@ -6,12 +6,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from constants import REPO_ID, SCHEMA_VERSION
+from extract_result import ExtractResult
 from mapper import classify_doc
 
 
-def build_draft(path: Path, text: str, method: str, mapped: dict) -> dict:
+def build_draft(path: Path, extracted: ExtractResult, mapped: dict) -> dict:
+    text = extracted.text
+    method = extracted.method
     doc_type = classify_doc(text, path.name)
-    return {
+    draft = {
         "schema_version": SCHEMA_VERSION,
         "tool": REPO_ID,
         "status": "draft",
@@ -39,3 +42,6 @@ def build_draft(path: Path, text: str, method: str, mapped: dict) -> dict:
         "text_preview": text[:900],
         "next_step": "Human review -> confirm -> downstream system (not included in this PoC)",
     }
+    if extracted.ocr_stats:
+        draft["ocr_stats"] = extracted.ocr_stats
+    return draft

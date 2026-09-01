@@ -1,6 +1,7 @@
-# OCR for scanned PDFs (--mode paddle)
-paddlepaddle>=2.6.0
-paddleocr>=2.7.0
-
+# OCR for scanned PDFs (--mode paddle) — run on Linux EC2/Lambda for best results
+# Windows py3.13 + paddle 3.x may need WSL2; use scripts/download_paddle_models.py first
+numpy>=1.24.0
+paddlepaddle>=3.0.0
+paddleocr>=2.10.0,<3.0.0
 # Vision LLM (--mode vlm)
 anthropic>=0.40.0

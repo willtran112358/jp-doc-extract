@@ -28,9 +28,9 @@ from schema import build_draft
 
 
 def run(path: Path, out_dir: Path, mode: str = "auto") -> Path:
-    text, method = extract_text(path, mode=mode)
-    mapped = map_fields(text, path=path, method=method)
-    draft = build_draft(path, text, method, mapped)
+    extracted = extract_text(path, mode=mode)
+    mapped = map_fields(extracted.text, path=path, method=extracted.method)
+    draft = build_draft(path, extracted, mapped)
     out_dir.mkdir(parents=True, exist_ok=True)
     safe = re.sub(r"[^\w.\-]+", "_", path.stem, flags=re.UNICODE)[:80]
     out_path = out_dir / f"{safe}_draft.json"
@@ -57,6 +57,7 @@ def run_batch(root: Path, out_dir: Path, mode: str = "auto") -> Path:
                     "fields": list(draft["draft_fields"].keys()),
                     "field_count": len(draft["draft_fields"]),
                     "evidence": len(draft["evidence_history"]),
+                    "ocr_avg_confidence": (draft.get("ocr_stats") or {}).get("avg_confidence"),
                     "output": out.name,
                     "ok": True,
                 }
@@ -119,6 +120,12 @@ def main() -> None:
         print(f"  - {k}: {v.get('value')} (conf={v.get('confidence')})")
     print(f"evidence : {len(draft['evidence_history'])} snippets")
     print(f"output   : {out_path}")
+    if draft.get("ocr_stats"):
+        ocr = draft["ocr_stats"]
+        print(
+            f"ocr      : avg_conf={ocr.get('avg_confidence')} "
+            f"lines={ocr.get('line_count')} min={ocr.get('min_confidence')}"
+        )
     if draft.get("warning"):
         print(f"warning  : {draft['warning']}")
 

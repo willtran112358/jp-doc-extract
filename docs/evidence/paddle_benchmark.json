@@ -1,0 +1,106 @@
+{
+  "generated_at": "2026-09-01T14:56:15.507588+00:00",
+  "tool": "jp-doc-extract",
+  "benchmark": "text_layer vs paddle_ocr_jp",
+  "results": [
+    {
+      "file": "sample_electricity_invoice.pdf",
+      "mode": "text",
+      "extract_method": "text_layer",
+      "text_len": 181,
+      "field_count": 8,
+      "fields": {
+        "company_name": "デモ電力株式会社",
+        "customer_name": "サンプル製造株式会社 本社工場",
+        "invoice_no": "INV-2024-04-00001",
+        "invoice_date": "2024-05-10",
+        "billing_period": "2024年4月",
+        "activity_amount": "125000",
+        "activity_unit": "kWh",
+        "amount_yen": "2750000"
+      },
+      "field_accuracy": {
+        "expected_fields": 8,
+        "matched_fields": 8,
+        "accuracy_pct": 100.0,
+        "matched": [
+          "company_name",
+          "customer_name",
+          "invoice_no",
+          "invoice_date",
+          "billing_period",
+          "activity_amount",
+          "activity_unit",
+          "amount_yen"
+        ],
+        "missed": []
+      }
+    },
+    {
+      "file": "sample_electricity_invoice.pdf",
+      "mode": "paddle",
+      "error": "In user code:\n\n    File \"tools/export_model.py\", line 73, in <module>\n      main()\n    File \"tools/export_model.py\", line 68, in main\n      paddle.jit.save(model, save_path)\n    File \"<decorator-gen-101>\", line 2, in save\n      \n    File \"/usr/local/lib/python3.7/site-packages/paddle/fluid/wrapped_decorator.py\", line 25, in __impl__\n      return wrapped_func(*args, **kwargs)\n    File \"/usr/local/l..."
+    },
+    {
+      "file": "sample_electricity_invoice_scan.pdf",
+      "mode": "text",
+      "extract_method": "ocr_needed",
+      "text_len": 0,
+      "field_count": 0,
+      "fields": {},
+      "field_accuracy": {
+        "expected_fields": 8,
+        "matched_fields": 0,
+        "accuracy_pct": 0.0,
+        "matched": [],
+        "missed": [
+          {
+            "field": "company_name",
+            "expected": "デモ電力株式会社",
+            "got": ""
+          },
+          {
+            "field": "customer_name",
+            "expected": "サンプル製造株式会社 本社工場",
+            "got": ""
+          },
+          {
+            "field": "invoice_no",
+            "expected": "INV-2024-04-00001",
+            "got": ""
+          },
+          {
+            "field": "invoice_date",
+            "expected": "2024-05-10",
+            "got": ""
+          },
+          {
+            "field": "billing_period",
+            "expected": "2024年4月",
+            "got": ""
+          },
+          {
+            "field": "activity_amount",
+            "expected": "125000",
+            "got": ""
+          },
+          {
+            "field": "activity_unit",
+            "expected": "kWh",
+            "got": ""
+          },
+          {
+            "field": "amount_yen",
+            "expected": "2750000",
+            "got": ""
+          }
+        ]
+      }
+    },
+    {
+      "file": "sample_electricity_invoice_scan.pdf",
+      "mode": "paddle",
+      "error": "In user code:\n\n    File \"tools/export_model.py\", line 73, in <module>\n      main()\n    File \"tools/export_model.py\", line 68, in main\n      paddle.jit.save(model, save_path)\n    File \"<decorator-gen-101>\", line 2, in save\n      \n    File \"/usr/local/lib/python3.7/site-packages/paddle/fluid/wrapped_decorator.py\", line 25, in __impl__\n      return wrapped_func(*args, **kwargs)\n    File \"/usr/local/l..."
+    }
+  ]
+}
