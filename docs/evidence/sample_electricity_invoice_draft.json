@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0",
+  "tool": "jp-doc-extract",
+  "status": "draft",
+  "created_at": "2026-09-01T06:42:38.347190+00:00",
+  "source_file": "sample_electricity_invoice.pdf",
+  "doc_type": "electricity_invoice",
+  "extract_method": "text_layer",
+  "jp_text_normalized": true,
+  "warning": null,
+  "soft_warnings": [],
+  "draft_fields": {
+    "company_name": {
+      "value": "デモ電力株式会社",
+      "confidence": 0.9
+    },
+    "customer_name": {
+      "value": "サンプル製造株式会社 本社工場",
+      "confidence": 0.88
+    },
+    "invoice_no": {
+      "value": "INV-2024-04-00001",
+      "confidence": 0.9
+    },
+    "invoice_date": {
+      "value": "2024-05-10",
+      "confidence": 0.9
+    },
+    "billing_period": {
+      "value": "2024年4月",
+      "confidence": 0.84
+    },
+    "activity_amount": {
+      "value": "125000",
+      "confidence": 0.84
+    },
+    "activity_unit": {
+      "value": "kWh",
+      "confidence": 0.82
+    },
+    "amount_yen": {
+      "value": "2750000",
+      "confidence": 0.86
+    }
+  },
+  "evidence_history": [
+    {
+      "field": "company_name",
+      "snippet": "デモ電力株式会社",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
+      "field": "customer_name",
+      "snippet": "お客様名:サンプル製造株式会社 本社工場",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
+      "field": "invoice_no",
+      "snippet": "請求書番号:INV-2024-04-00001",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
+      "field": "invoice_date",
+      "snippet": "発行日:2024年5月10日",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
+      "field": "billing_period",
+      "snippet": "ご使用期間:2024年4月",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
+      "field": "activity_amount",
+      "snippet": "使用電力量\n125,000 kWh",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
+      "field": "activity_unit",
+      "snippet": "使用電力量\n125,000 kWh",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
+      "field": "amount_yen",
+      "snippet": "ご請求額合計(税込)\n2,750,000円",
+      "page": 1,
+      "source": "regex_jp"
+    }
+  ],
+  "text_preview": "電気ご使用量のお知らせ(御請求書)\nデモ電力株式会社 産業用電力部\n発行日:2024年5月10日\n請求書番号:INV-2024-04-00001\nお客様名:サンプル製造株式会社 本社工場\nご使用期間:2024年4月1日~2024年4月30日\n使用電力量\n125,000 kWh\nご請求額合計(税込)\n2,750,000円\n※本書類は技術検証用の合成サンプルです。",
+  "next_step": "Human review -> confirm -> downstream system (not included in this PoC)"
+}

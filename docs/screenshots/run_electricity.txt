@@ -1,7 +1,0 @@
-﻿=== CLAP AI OCR POC ===
-file     : samples\jp_electricity_invoice_sakura.pdf
-method   : text_layer
-status   : draft (Draft / µ£¬τó║σ«Ü)
-fields   : ['company_name', 'invoice_date', 'billing_period', 'activity_unit', 'activity_amount', 'amount_yen']
-evidence : 5 snippets
-output   : output\jp_electricity_invoice_sakura_draft.json

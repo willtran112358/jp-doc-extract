@@ -1,368 +1,28 @@
 {
-  "generated_at": "2026-08-23T06:02:30.119092+00:00",
-  "sample_root": "D:\\bchin\\Downloads\\VMO\\WOV2-AI\\Tài liệu AI Data Extraction",
-  "total": 31,
-  "ok": 31,
-  "jp_optimized": true,
+  "generated_at": "2026-09-01T06:42:38.377018+00:00",
+  "tool": "jp-doc-extract",
+  "sample_root": "bundled samples",
+  "mode": "auto",
+  "total": 3,
+  "ok": 3,
   "results": [
     {
-      "file": "サンプル１-Sample 1\\①GHG排出量算定根拠資料_サクラモビリティ_FY2024.xlsx",
+      "file": "sample_activity_energy.csv",
       "doc_type": "activity_table",
-      "method": "xlsx_parse",
+      "method": "csv_parse",
       "fields": [
         "company_name",
-        "billing_period",
-        "fiscal_year"
+        "fiscal_year",
+        "site_name"
       ],
       "field_count": 3,
       "evidence": 3,
-      "output": "①GHG排出量算定根拠資料_サクラモビリティ_FY2024_draft.json",
+      "output": "sample_activity_energy_draft.json",
       "ok": true
     },
     {
-      "file": "サンプル１-Sample 1\\①活動量データ_サクラモビリティ_エネルギー使用量_FY2024.csv",
-      "doc_type": "activity_table",
-      "method": "csv_parse",
-      "fields": [],
-      "field_count": 0,
-      "evidence": 0,
-      "output": "①活動量データ_サクラモビリティ_エネルギー使用量_FY2024_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル１-Sample 1\\②活動量データ_都市ガス納品伝票_本社工場_2024年5月.pdf",
-      "doc_type": "gas_invoice",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "customer_name",
-        "invoice_no",
-        "invoice_date",
-        "billing_period",
-        "activity_amount",
-        "activity_unit"
-      ],
-      "field_count": 7,
-      "evidence": 7,
-      "output": "②活動量データ_都市ガス納品伝票_本社工場_2024年5月_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル１-Sample 1\\②活動量データ_電力請求書_本社工場_2024年4月.pdf",
+      "file": "sample_electricity_invoice.pdf",
       "doc_type": "electricity_invoice",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "customer_name",
-        "invoice_no",
-        "invoice_date",
-        "billing_period",
-        "activity_amount",
-        "activity_unit"
-      ],
-      "field_count": 7,
-      "evidence": 7,
-      "output": "②活動量データ_電力請求書_本社工場_2024年4月_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル１-Sample 1\\③サステナビリティレポート_サクラモビリティ_2024.pdf",
-      "doc_type": "sustainability_report",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "billing_period",
-        "fiscal_year"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "③サステナビリティレポート_サクラモビリティ_2024_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル１-Sample 1\\④エビデンス資料_第三者検証意見書_サクラモビリティ.pdf",
-      "doc_type": "verification_evidence",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "customer_name",
-        "billing_period",
-        "fiscal_year"
-      ],
-      "field_count": 4,
-      "evidence": 4,
-      "output": "④エビデンス資料_第三者検証意見書_サクラモビリティ_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル１-Sample 1\\⓪企業概要資料_サクラモビリティ.pdf",
-      "doc_type": "company_profile",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "invoice_date",
-        "billing_period"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "⓪企業概要資料_サクラモビリティ_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル２-Sample 2\\0_company_profile_harukafoods.pdf",
-      "doc_type": "company_profile",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "invoice_date",
-        "billing_period"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "0_company_profile_harukafoods_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル２-Sample 2\\1_activity_data_harukafoods_FY2023.csv",
-      "doc_type": "activity_table",
-      "method": "csv_parse",
-      "fields": [],
-      "field_count": 0,
-      "evidence": 0,
-      "output": "1_activity_data_harukafoods_FY2023_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル２-Sample 2\\1_ghg_calc_harukafoods_FY2023.xlsx",
-      "doc_type": "activity_table",
-      "method": "xlsx_parse",
-      "fields": [
-        "company_name",
-        "billing_period",
-        "fiscal_year"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "1_ghg_calc_harukafoods_FY2023_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル２-Sample 2\\3_sustainability_report_harukafoods_2023.pdf",
-      "doc_type": "sustainability_report",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "billing_period",
-        "fiscal_year"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "3_sustainability_report_harukafoods_2023_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル２-Sample 2\\4_evidence_supplier_survey_harukafoods.pdf",
-      "doc_type": "verification_evidence",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "billing_period",
-        "fiscal_year"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "4_evidence_supplier_survey_harukafoods_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル２-Sample 2\\②活動量データ_海上輸送インボイス_上海工場_2023年4月.pdf",
-      "doc_type": "shipping_invoice",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "invoice_no",
-        "invoice_date",
-        "activity_amount",
-        "activity_unit"
-      ],
-      "field_count": 5,
-      "evidence": 5,
-      "output": "②活動量データ_海上輸送インボイス_上海工場_2023年4月_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル２-Sample 2\\②活動量データ_生乳仕入納品書_十勝工場_2023年4月.pdf",
-      "doc_type": "milk_delivery",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "customer_name",
-        "invoice_no",
-        "invoice_date",
-        "billing_period"
-      ],
-      "field_count": 5,
-      "evidence": 5,
-      "output": "②活動量データ_生乳仕入納品書_十勝工場_2023年4月_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル３-Sample 3\\0_company_profile_sakurajima.pdf",
-      "doc_type": "company_profile",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "invoice_date",
-        "billing_period"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "0_company_profile_sakurajima_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル３-Sample 3\\1_activity_data_sakurajima_FY2023.csv",
-      "doc_type": "activity_table",
-      "method": "csv_parse",
-      "fields": [],
-      "field_count": 0,
-      "evidence": 0,
-      "output": "1_activity_data_sakurajima_FY2023_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル３-Sample 3\\1_ghg_calc_sakurajima_FY2023.xlsx",
-      "doc_type": "activity_table",
-      "method": "xlsx_parse",
-      "fields": [
-        "company_name",
-        "billing_period",
-        "fiscal_year"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "1_ghg_calc_sakurajima_FY2023_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル３-Sample 3\\2_invoice_coal_china.pdf",
-      "doc_type": "coal_ticket",
-      "method": "text_layer",
-      "fields": [
-        "invoice_no",
-        "invoice_date",
-        "billing_period"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "2_invoice_coal_china_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル３-Sample 3\\2_invoice_electricity_kawasaki.pdf",
-      "doc_type": "electricity_invoice",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "customer_name",
-        "invoice_no",
-        "invoice_date",
-        "billing_period",
-        "activity_amount",
-        "activity_unit"
-      ],
-      "field_count": 7,
-      "evidence": 7,
-      "output": "2_invoice_electricity_kawasaki_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル３-Sample 3\\3_sustainability_report_sakurajima_2023.pdf",
-      "doc_type": "sustainability_report",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "billing_period",
-        "fiscal_year"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "3_sustainability_report_sakurajima_2023_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル３-Sample 3\\4_evidence_internal_audit_kawasaki.pdf",
-      "doc_type": "verification_evidence",
-      "method": "text_layer",
-      "fields": [
-        "invoice_date",
-        "billing_period"
-      ],
-      "field_count": 2,
-      "evidence": 2,
-      "output": "4_evidence_internal_audit_kawasaki_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル５-Sample 5\\0_company_profile_otemachi.pdf",
-      "doc_type": "company_profile",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "invoice_date",
-        "billing_period",
-        "fiscal_year"
-      ],
-      "field_count": 4,
-      "evidence": 4,
-      "output": "0_company_profile_otemachi_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル５-Sample 5\\1_activity_data_overseas_otemachi_FY2023.csv",
-      "doc_type": "activity_table",
-      "method": "csv_parse",
-      "fields": [],
-      "field_count": 0,
-      "evidence": 0,
-      "output": "1_activity_data_overseas_otemachi_FY2023_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル５-Sample 5\\1_ghg_calc_otemachi_FY2023.xlsx",
-      "doc_type": "activity_table",
-      "method": "xlsx_parse",
-      "fields": [
-        "company_name",
-        "billing_period",
-        "fiscal_year"
-      ],
-      "field_count": 3,
-      "evidence": 3,
-      "output": "1_ghg_calc_otemachi_FY2023_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル５-Sample 5\\2_invoice_electricity_tokyo_hq.pdf",
-      "doc_type": "electricity_invoice",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "customer_name",
-        "invoice_no",
-        "invoice_date",
-        "billing_period",
-        "activity_amount",
-        "activity_unit"
-      ],
-      "field_count": 7,
-      "evidence": 7,
-      "output": "2_invoice_electricity_tokyo_hq_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル５-Sample 5\\4_evidence_verification_issues_otemachi.pdf",
-      "doc_type": "verification_evidence",
       "method": "text_layer",
       "fields": [
         "company_name",
@@ -372,81 +32,29 @@
         "billing_period",
         "activity_amount",
         "activity_unit",
-        "fiscal_year"
+        "amount_yen"
       ],
       "field_count": 8,
       "evidence": 8,
-      "output": "4_evidence_verification_issues_otemachi_draft.json",
+      "output": "sample_electricity_invoice_draft.json",
       "ok": true
     },
     {
-      "file": "サンプル６-Sample 6\\0_company_profile_konotori.pdf",
-      "doc_type": "company_profile",
-      "method": "text_layer",
-      "fields": [
-        "company_name",
-        "invoice_date",
-        "billing_period",
-        "fiscal_year"
-      ],
-      "field_count": 4,
-      "evidence": 4,
-      "output": "0_company_profile_konotori_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル６-Sample 6\\emission_data_confirmation_dummy_konotori.xlsx",
-      "doc_type": "activity_table",
-      "method": "xlsx_parse",
-      "fields": [
-        "company_name",
-        "billing_period",
-        "activity_amount",
-        "activity_unit",
-        "fiscal_year"
-      ],
-      "field_count": 5,
-      "evidence": 5,
-      "output": "emission_data_confirmation_dummy_konotori_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル６-Sample 6\\gas_invoice_dummy_konotori.pdf",
+      "file": "sample_gas_delivery.pdf",
       "doc_type": "gas_invoice",
       "method": "text_layer",
       "fields": [
         "company_name",
+        "customer_name",
+        "invoice_no",
+        "invoice_date",
         "billing_period",
         "activity_amount",
         "activity_unit"
       ],
-      "field_count": 4,
-      "evidence": 4,
-      "output": "gas_invoice_dummy_konotori_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル６-Sample 6\\site_list_dummy_konotori.xlsx",
-      "doc_type": "activity_table",
-      "method": "xlsx_parse",
-      "fields": [
-        "company_name"
-      ],
-      "field_count": 1,
-      "evidence": 1,
-      "output": "site_list_dummy_konotori_draft.json",
-      "ok": true
-    },
-    {
-      "file": "サンプル６-Sample 6\\vehicle_fuel_list_dummy_konotori.xlsx",
-      "doc_type": "activity_table",
-      "method": "xlsx_parse",
-      "fields": [
-        "company_name"
-      ],
-      "field_count": 1,
-      "evidence": 1,
-      "output": "vehicle_fuel_list_dummy_konotori_draft.json",
+      "field_count": 7,
+      "evidence": 7,
+      "output": "sample_gas_delivery_draft.json",
       "ok": true
     }
   ]
