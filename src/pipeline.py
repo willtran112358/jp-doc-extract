@@ -40,7 +40,11 @@ def run(path: Path, out_dir: Path, mode: str = "auto") -> Path:
 
 def iter_samples(root: Path) -> list[Path]:
     exts = {".pdf", ".csv", ".xlsx"}
-    return sorted(p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in exts)
+    return sorted(
+        p
+        for p in root.rglob("*")
+        if p.is_file() and p.suffix.lower() in exts and "scan" not in p.parts
+    )
 
 
 def run_batch(root: Path, out_dir: Path, mode: str = "auto") -> Path:
@@ -56,15 +60,21 @@ def run_batch(root: Path, out_dir: Path, mode: str = "auto") -> Path:
                     "method": draft["extract_method"],
                     "fields": list(draft["draft_fields"].keys()),
                     "field_count": len(draft["draft_fields"]),
+                    "journal": (draft.get("journal_draft") or {}).get("status"),
+                    "journal_balanced": (draft.get("journal_draft") or {}).get("balanced"),
+                    "journal_lines": len((draft.get("journal_draft") or {}).get("lines") or []),
                     "evidence": len(draft["evidence_history"]),
                     "ocr_avg_confidence": (draft.get("ocr_stats") or {}).get("avg_confidence"),
                     "output": out.name,
                     "ok": True,
                 }
             )
+            jd = draft.get("journal_draft") or {}
             print(
                 f"OK  {path.name} -> {draft['doc_type']} "
-                f"fields={len(draft['draft_fields'])} evidence={len(draft['evidence_history'])}"
+                f"fields={len(draft['draft_fields'])} "
+                f"journal={jd.get('status')} lines={len(jd.get('lines') or [])} "
+                f"evidence={len(draft['evidence_history'])}"
             )
         except Exception as exc:  # noqa: BLE001
             summary.append({"file": path.name, "ok": False, "error": str(exc)})
@@ -119,6 +129,13 @@ def main() -> None:
     for k, v in draft["draft_fields"].items():
         print(f"  - {k}: {v.get('value')} (conf={v.get('confidence')})")
     print(f"evidence : {len(draft['evidence_history'])} snippets")
+    jd = draft.get("journal_draft") or {}
+    print(f"journal  : {jd.get('status')} balanced={jd.get('balanced')} lines={len(jd.get('lines') or [])}")
+    for line in jd.get("lines") or []:
+        print(
+            f"  - {line['side']:6} {line['account_code']} {line['account_name']} "
+            f"{line.get('dept') or '-'} {line['amount']}"
+        )
     print(f"output   : {out_path}")
     if draft.get("ocr_stats"):
         ocr = draft["ocr_stats"]

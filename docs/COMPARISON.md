@@ -24,8 +24,8 @@ Context: GHG / activity-data documents (invoices, gas tickets, CSV activity tabl
 
 ## When to use this repo in a larger solution
 
-1. **Phase 1 (now):** Prove Draft JSON schema + evidence format on synthetic / digital samples.
-2. **Phase 2:** `--mode paddle` on Lambda (colleague track) for scan samples.
+1. **Phase 1 (now):** Draft JSON + evidence + **journal rules** on synthetic digital samples.
+2. **Phase 2:** `--mode paddle` on Lambda for scans.
 3. **Phase 3:** `--mode vlm` or cloud LLM when Bedrock/GCP Sonnet is unblocked.
 4. **Production:** Replace inline scripts with API Gateway + worker; SF receives small JSON only.
 

@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "tool": "jp-doc-extract",
   "status": "draft",
-  "created_at": "2026-09-01T06:45:03.875694+00:00",
+  "created_at": "2026-09-03T09:23:07.771331+00:00",
   "source_file": "sample_activity_energy.csv",
   "doc_type": "activity_table",
   "extract_method": "csv_parse",
@@ -22,6 +22,23 @@
       "value": "本社工場",
       "confidence": 0.8
     }
+  },
+  "journal_draft": {
+    "status": "skipped",
+    "reason": "no amount_yen",
+    "balanced": null,
+    "lines": []
+  },
+  "hitl": {
+    "original": "sample_activity_energy.csv",
+    "extract_fields": [
+      "company_name",
+      "fiscal_year",
+      "site_name"
+    ],
+    "journal": "skipped",
+    "approval": null,
+    "registered": null
   },
   "evidence_history": [
     {
@@ -44,5 +61,5 @@
     }
   ],
   "text_preview": "会社名 | 拠点 | 対象年度 | エネルギー種別 | 使用量 | 単位 \n会社名 | 拠点 | 対象年度 | エネルギー種別 | 使用量 | 単位 \nサンプル製造株式会社 | 本社工場 | 2024年度 | 電力 | 125000 | kWh \nサンプル製造株式会社 | 本社工場 | 2024年度 | 都市ガス | 4850 | m3",
-  "next_step": "Human review -> confirm -> downstream system (not included in this PoC)"
+  "next_step": "HITL: original + extract + journal_draft → confirm (no auto-post)"
 }

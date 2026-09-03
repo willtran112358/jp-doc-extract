@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-09-01T06:45:03.917536+00:00",
+  "generated_at": "2026-09-03T09:23:07.791396+00:00",
   "tool": "jp-doc-extract",
   "sample_root": "bundled samples",
   "mode": "auto",
-  "total": 3,
-  "ok": 3,
+  "total": 4,
+  "ok": 4,
   "results": [
     {
       "file": "sample_activity_energy.csv",
@@ -16,7 +16,11 @@
         "site_name"
       ],
       "field_count": 3,
+      "journal": "skipped",
+      "journal_balanced": null,
+      "journal_lines": 0,
       "evidence": 3,
+      "ocr_avg_confidence": null,
       "output": "sample_activity_energy_draft.json",
       "ok": true
     },
@@ -25,7 +29,10 @@
       "doc_type": "electricity_invoice",
       "method": "text_layer",
       "fields": [
+        "payee",
         "company_name",
+        "item_category",
+        "tax_yen",
         "customer_name",
         "invoice_no",
         "invoice_date",
@@ -34,8 +41,12 @@
         "activity_unit",
         "amount_yen"
       ],
-      "field_count": 8,
-      "evidence": 8,
+      "field_count": 11,
+      "journal": "draft",
+      "journal_balanced": true,
+      "journal_lines": 4,
+      "evidence": 14,
+      "ocr_avg_confidence": null,
       "output": "sample_electricity_invoice_draft.json",
       "ok": true
     },
@@ -44,17 +55,49 @@
       "doc_type": "gas_invoice",
       "method": "text_layer",
       "fields": [
+        "payee",
         "company_name",
+        "item_category",
+        "tax_yen",
         "customer_name",
         "invoice_no",
         "invoice_date",
         "billing_period",
         "activity_amount",
-        "activity_unit"
+        "activity_unit",
+        "amount_yen"
       ],
-      "field_count": 7,
-      "evidence": 7,
+      "field_count": 11,
+      "journal": "draft",
+      "journal_balanced": true,
+      "journal_lines": 4,
+      "evidence": 14,
+      "ocr_avg_confidence": null,
       "output": "sample_gas_delivery_draft.json",
+      "ok": true
+    },
+    {
+      "file": "sample_vendor_invoice.pdf",
+      "doc_type": "vendor_invoice",
+      "method": "text_layer",
+      "fields": [
+        "payee",
+        "company_name",
+        "item_category",
+        "tax_yen",
+        "customer_name",
+        "invoice_no",
+        "invoice_date",
+        "billing_period",
+        "amount_yen"
+      ],
+      "field_count": 9,
+      "journal": "draft",
+      "journal_balanced": true,
+      "journal_lines": 4,
+      "evidence": 12,
+      "ocr_avg_confidence": null,
+      "output": "sample_vendor_invoice_draft.json",
       "ok": true
     }
   ]

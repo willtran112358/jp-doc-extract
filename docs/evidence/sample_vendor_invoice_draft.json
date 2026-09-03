@@ -2,88 +2,80 @@
   "schema_version": "1.1",
   "tool": "jp-doc-extract",
   "status": "draft",
-  "created_at": "2026-09-03T09:23:08.364574+00:00",
-  "source_file": "sample_electricity_invoice.pdf",
-  "doc_type": "electricity_invoice",
+  "created_at": "2026-09-03T09:23:08.371621+00:00",
+  "source_file": "sample_vendor_invoice.pdf",
+  "doc_type": "vendor_invoice",
   "extract_method": "text_layer",
   "jp_text_normalized": true,
   "warning": null,
   "soft_warnings": [],
   "draft_fields": {
     "payee": {
-      "value": "デモ電力株式会社",
+      "value": "デモ文具株式会社",
       "confidence": 0.9
     },
     "company_name": {
-      "value": "デモ電力株式会社",
+      "value": "デモ文具株式会社",
       "confidence": 0.9
     },
     "item_category": {
-      "value": "電力",
+      "value": "事務用品",
       "confidence": 0.86
     },
     "tax_yen": {
-      "value": "250000",
+      "value": "10000",
       "confidence": 0.84
     },
     "customer_name": {
-      "value": "サンプル製造株式会社 本社工場",
+      "value": "総務部 / 経理部",
       "confidence": 0.88
     },
     "invoice_no": {
-      "value": "INV-2024-04-00001",
+      "value": "STN-2024-07-00010",
       "confidence": 0.9
     },
     "invoice_date": {
-      "value": "2024-05-10",
+      "value": "2024-07-01",
       "confidence": 0.9
     },
     "billing_period": {
-      "value": "2024年4月",
+      "value": "2024年7月",
       "confidence": 0.84
-    },
-    "activity_amount": {
-      "value": "125000",
-      "confidence": 0.84
-    },
-    "activity_unit": {
-      "value": "kWh",
-      "confidence": 0.82
     },
     "amount_yen": {
-      "value": "2750000",
+      "value": "110000",
       "confidence": 0.86
     }
   },
   "journal_draft": {
     "status": "draft",
     "balanced": true,
-    "gross": 2750000,
-    "net": 2500000,
-    "tax": 250000,
-    "payee": "デモ電力株式会社",
-    "payee_code": "V-ELEC",
-    "item": "電力",
+    "gross": 110000,
+    "net": 100000,
+    "tax": 10000,
+    "payee": "デモ文具株式会社",
+    "payee_code": "V-OFFICE",
+    "item": "事務用品",
     "lines": [
       {
         "side": "debit",
-        "account_code": "5110",
-        "account_name": "水道光熱費",
-        "dept": "FAC01",
-        "dept_name": "施設管理",
-        "amount": 1750000,
+        "account_code": "5210",
+        "account_name": "消耗品費",
+        "dept": "ADM01",
+        "dept_name": "総務",
+        "amount": 60000,
         "tax_code": "JCT10",
-        "item": "電力"
+        "item": "事務用品"
       },
       {
         "side": "debit",
-        "account_code": "5110",
-        "account_name": "水道光熱費",
-        "dept": "ADM01",
-        "dept_name": "総務",
-        "amount": 750000,
+        "account_code": "5210",
+        "account_name": "消耗品費",
+        "dept": "ACC01",
+        "dept_name": "経理",
+        "amount": 40000,
         "tax_code": "JCT10",
-        "item": "電力"
+        "item": "事務用品"
       },
       {
         "side": "debit",
@@ -91,7 +83,7 @@
         "account_name": "仮払消費税",
         "dept": null,
         "dept_name": null,
-        "amount": 250000,
+        "amount": 10000,
         "tax_code": "JCT10",
         "item": "消費税"
       },
@@ -101,17 +93,17 @@
         "account_name": "未払金",
         "dept": null,
         "dept_name": null,
-        "amount": 2750000,
+        "amount": 110000,
         "tax_code": "JCT10",
-        "item": "デモ電力株式会社",
-        "payee": "デモ電力株式会社",
-        "payee_code": "V-ELEC"
+        "item": "デモ文具株式会社",
+        "payee": "デモ文具株式会社",
+        "payee_code": "V-OFFICE"
       }
     ],
     "next_step": "HITL confirm extract + journal; do not auto-post"
   },
   "hitl": {
-    "original": "sample_electricity_invoice.pdf",
+    "original": "sample_vendor_invoice.pdf",
     "extract_fields": [
       "payee",
       "company_name",
@@ -121,8 +113,6 @@
       "invoice_no",
       "invoice_date",
       "billing_period",
-      "activity_amount",
-      "activity_unit",
       "amount_yen"
     ],
     "journal": "draft",
@@ -132,89 +122,77 @@
   "evidence_history": [
     {
       "field": "payee",
-      "snippet": "支払先:デモ電力株式会社",
+      "snippet": "支払先:デモ文具株式会社",
       "page": 1,
       "source": "regex_jp"
     },
     {
       "field": "company_name",
-      "snippet": "デモ電力株式会社",
+      "snippet": "デモ文具株式会社",
       "page": 1,
       "source": "regex_jp"
     },
     {
       "field": "item_category",
-      "snippet": "品目:電力",
+      "snippet": "品目:事務用品",
       "page": 1,
       "source": "regex_jp"
     },
     {
       "field": "tax_yen",
-      "snippet": "消費税(10%):250,000円",
+      "snippet": "消費税(10%):10,000円",
       "page": 1,
       "source": "regex_jp"
     },
     {
       "field": "customer_name",
-      "snippet": "お客様名:サンプル製造株式会社 本社工場",
+      "snippet": "納品先:総務部 / 経理部",
       "page": 1,
       "source": "regex_jp"
     },
     {
       "field": "invoice_no",
-      "snippet": "請求書番号:INV-2024-04-00001",
+      "snippet": "請求書番号:STN-2024-07-00010",
       "page": 1,
       "source": "regex_jp"
     },
     {
       "field": "invoice_date",
-      "snippet": "発行日:2024年5月10日",
+      "snippet": "発行日:2024年7月1日",
       "page": 1,
       "source": "regex_jp"
     },
     {
       "field": "billing_period",
-      "snippet": "ご使用期間:2024年4月",
-      "page": 1,
-      "source": "regex_jp"
-    },
-    {
-      "field": "activity_amount",
-      "snippet": "使用電力量\n125,000 kWh",
-      "page": 1,
-      "source": "regex_jp"
-    },
-    {
-      "field": "activity_unit",
-      "snippet": "使用電力量\n125,000 kWh",
+      "snippet": "2024年7月",
       "page": 1,
       "source": "regex_jp"
     },
     {
       "field": "amount_yen",
-      "snippet": "ご請求額合計(税込)\n2,750,000円",
+      "snippet": "ご請求額合計(税込)\n110,000円",
       "page": 1,
       "source": "regex_jp"
     },
     {
       "field": "payee",
-      "snippet": "デモ電力株式会社 → V-ELEC",
+      "snippet": "デモ文具株式会社 → V-OFFICE",
       "page": 1,
       "source": "journal_rule"
     },
     {
       "field": "item_category",
-      "snippet": "電力 → 5110 水道光熱費",
+      "snippet": "事務用品 → 5210 消耗品費",
       "page": 1,
       "source": "journal_rule"
     },
     {
       "field": "allocation",
-      "snippet": "施設管理 70% / 総務 30%",
+      "snippet": "総務 60% / 経理 40%",
       "page": 1,
       "source": "journal_rule"
     }
   ],
-  "text_preview": "電気ご使用量のお知らせ(御請求書)\nデモ電力株式会社 産業用電力部\n発行日:2024年5月10日\n請求書番号:INV-2024-04-00001\n支払先:デモ電力株式会社\nお客様名:サンプル製造株式会社 本社工場\nご使用期間:2024年4月1日~2024年4月30日\n品目:電力\n使用電力量\n125,000 kWh\nご請求額合計(税込)\n2,750,000円\n消費税(10%):250,000円\n※本書類は技術検証用の合成サンプルです。",
+  "text_preview": "請求書\n支払先:デモ文具株式会社\n発行日:2024年7月1日\n請求書番号:STN-2024-07-00010\n品目:事務用品\n納品先:総務部 / 経理部\nご請求額合計(税込)\n110,000円\n消費税(10%):10,000円\n※本書類は技術検証用の合成サンプルです。",
   "next_step": "HITL: original + extract + journal_draft → confirm (no auto-post)"
 }

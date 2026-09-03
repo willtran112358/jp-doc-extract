@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Generate synthetic public-domain sample files (no real company data)."""
+"""Generate synthetic sample files (no real company data)."""
 from __future__ import annotations
 
 import csv
@@ -10,39 +10,19 @@ import pymupdf as fitz
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = ROOT / "samples"
 
-JP_FONTS = [
-    Path("C:/Windows/Fonts/msgothic.ttc"),
-    Path("C:/Windows/Fonts/meiryo.ttc"),
-    Path("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
-    Path("/System/Library/Fonts/Hiragino Sans GB.ttc"),
-]
-
-
-def _jp_font() -> tuple[str, str | None]:
-    for path in JP_FONTS:
-        if path.exists():
-            return "jpfont", str(path)
-    return "helv", None
-
 
 def _write_pdf(name: str, lines: list[str]) -> None:
-    fontname, fontfile = _jp_font()
+    """Built-in CJK font: small file + extractable Unicode."""
     doc = fitz.open()
     page = doc.new_page(width=595, height=842)
-    if fontfile:
-        page.insert_font(fontname=fontname, fontfile=fontfile)
     y = 50
     for line in lines:
-        kw = {"fontsize": 11, "fontname": fontname}
-        page.insert_text((50, y), line, **kw)
+        page.insert_text((50, y), line, fontsize=11, fontname="japan")
         y += 16
         if y > 800:
             page = doc.new_page(width=595, height=842)
-            if fontfile:
-                page.insert_font(fontname=fontname, fontfile=fontfile)
             y = 50
     path = SAMPLES / name
-    doc.subset_fonts(verbose=False)
     doc.save(path, garbage=4, deflate=True)
     doc.close()
     print("wrote", path, f"({path.stat().st_size // 1024} KB)")
@@ -58,12 +38,15 @@ def main() -> None:
             "デモ電力株式会社 産業用電力部",
             "発行日:2024年5月10日",
             "請求書番号:INV-2024-04-00001",
+            "支払先:デモ電力株式会社",
             "お客様名:サンプル製造株式会社 本社工場",
             "ご使用期間:2024年4月1日~2024年4月30日",
+            "品目:電力",
             "使用電力量",
             "125,000 kWh",
             "ご請求額合計(税込)",
             "2,750,000円",
+            "消費税(10%):250,000円",
             "※本書類は技術検証用の合成サンプルです。",
         ],
     )
@@ -75,10 +58,31 @@ def main() -> None:
             "デモガス株式会社",
             "発行日:2024年6月5日",
             "伝票番号:GAS-2024-05-00002",
+            "支払先:デモガス株式会社",
             "供給先名:サンプル製造株式会社 本社工場",
             "計量期間:2024年5月1日~2024年5月31日",
+            "品目:都市ガス",
             "都市ガス使用量",
             "4,850 m3",
+            "ご請求額合計(税込)",
+            "539,000円",
+            "消費税(10%):49,000円",
+            "※本書類は技術検証用の合成サンプルです。",
+        ],
+    )
+
+    _write_pdf(
+        "sample_vendor_invoice.pdf",
+        [
+            "請求書",
+            "支払先:デモ文具株式会社",
+            "発行日:2024年7月1日",
+            "請求書番号:STN-2024-07-00010",
+            "品目:事務用品",
+            "納品先:総務部 / 経理部",
+            "ご請求額合計(税込)",
+            "110,000円",
+            "消費税(10%):10,000円",
             "※本書類は技術検証用の合成サンプルです。",
         ],
     )

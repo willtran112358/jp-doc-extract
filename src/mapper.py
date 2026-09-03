@@ -13,6 +13,10 @@ GAP = r"[\s　\n]{0,40}"
 
 FIELD_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     (
+        "payee",
+        re.compile(r"(?:支払先|請求元|発行元)" + SEP + r"([^\n]{3,80})"),
+    ),
+    (
         "company_name",
         re.compile(
             r"("
@@ -22,6 +26,20 @@ FIELD_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
             r"|"
             r"[A-Za-z][A-Za-z0-9 .,&\-]{2,50}(?:Co\.,?\s*Ltd\.|Corporation|Inc\.)"
             r")"
+        ),
+    ),
+    (
+        "item_category",
+        re.compile(r"(?:品目|費目|摘要)" + SEP + r"([^\n]{2,40})"),
+    ),
+    (
+        "tax_yen",
+        re.compile(
+            r"(?:消費税(?:額)?|内消費税)(?:[(（][^)）\n]{0,12}[)）])?"
+            + SEP
+            + r"[¥￥]?\s*"
+            + NUM
+            + r"\s*円?"
         ),
     ),
     (
@@ -98,6 +116,7 @@ FIELD_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
 ]
 
 DOC_TYPE_RULES: list[tuple[str, re.Pattern[str]]] = [
+    ("vendor_invoice", re.compile(r"支払先|事務用品|消耗品")),
     ("electricity_invoice", re.compile(r"電気|電力|kWh|ご使用量のお知らせ|御請求書")),
     ("gas_invoice", re.compile(r"ガス|都市ガス|m³|m3|供給計量票")),
     ("shipping_invoice", re.compile(r"SHIPPING|海上輸送|Invoice", re.I)),
@@ -124,6 +143,8 @@ def normalize_jp_text(text: str) -> str:
         return ""
     t = unicodedata.normalize("NFKC", text)
     t = t.replace("\u00a0", " ").replace("〜", "～")
+    t = t.replace("\u2010", "-").replace("\u2011", "-").replace("\u2212", "-")
+    t = t.replace("\u2013", "-").replace("\u2014", "-")
     t = re.sub(r"[^\S\n]+", " ", t)
     t = re.sub(r"\n{3,}", "\n\n", t)
     return t.strip()
@@ -136,6 +157,8 @@ def normalize_number(value: str) -> str:
 
 def classify_doc(text: str, name: str) -> str:
     n = name.lower()
+    if any(k in name or k in n for k in ["文具", "vendor", "支払"]):
+        return "vendor_invoice"
     if any(k in name or k in n for k in ["電力", "electricity"]):
         return "electricity_invoice"
     if any(k in name or k in n for k in ["ガス", "gas"]):
@@ -199,6 +222,13 @@ def map_fields_regex(text: str) -> dict:
             _set_field(fields, evidence, "billing_period", value.strip(), m.group(0), 0.84, "regex_jp")
         elif name == "amount_yen":
             _set_field(fields, evidence, "amount_yen", normalize_number(m.group(1)), m.group(0), 0.86, "regex_jp")
+        elif name == "tax_yen":
+            _set_field(fields, evidence, "tax_yen", normalize_number(m.group(1)), m.group(0), 0.84, "regex_jp")
+        elif name == "payee":
+            value = re.split(r"\s{2,}|　", m.group(1).strip())[0].strip()
+            _set_field(fields, evidence, "payee", value, m.group(0), 0.9, "regex_jp")
+        elif name == "item_category":
+            _set_field(fields, evidence, "item_category", m.group(1).strip(), m.group(0), 0.86, "regex_jp")
         elif name == "customer_name":
             value = re.split(r"\s{2,}|　", m.group(1).strip())[0].strip()
             _set_field(fields, evidence, "customer_name", value, m.group(0), 0.88, "regex_jp")

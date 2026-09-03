@@ -1,0 +1,47 @@
+{
+  "tax_included_rate": 0.1,
+  "ap_account": { "code": "2100", "name": "未払金" },
+  "tax_account": { "code": "1400", "name": "仮払消費税" },
+  "vendors": [
+    { "match": "デモ電力", "payee_code": "V-ELEC" },
+    { "match": "デモガス", "payee_code": "V-GAS" },
+    { "match": "デモ文具", "payee_code": "V-OFFICE" }
+  ],
+  "categories": [
+    {
+      "match_any": ["電気", "電力", "kWh", "electricity"],
+      "expense_code": "5110",
+      "expense_name": "水道光熱費",
+      "item": "電力"
+    },
+    {
+      "match_any": ["ガス", "m3", "m³", "都市ガス"],
+      "expense_code": "5110",
+      "expense_name": "水道光熱費",
+      "item": "都市ガス"
+    },
+    {
+      "match_any": ["事務", "文具", "消耗"],
+      "expense_code": "5210",
+      "expense_name": "消耗品費",
+      "item": "事務用品"
+    }
+  ],
+  "allocations": [
+    {
+      "match_any": ["本社工場"],
+      "splits": [
+        { "dept": "FAC01", "name": "施設管理", "pct": 70 },
+        { "dept": "ADM01", "name": "総務", "pct": 30 }
+      ]
+    },
+    {
+      "match_any": ["総務", "経理"],
+      "splits": [
+        { "dept": "ADM01", "name": "総務", "pct": 60 },
+        { "dept": "ACC01", "name": "経理", "pct": 40 }
+      ]
+    }
+  ],
+  "default_split": [{ "dept": "ADM01", "name": "総務", "pct": 100 }]
+}

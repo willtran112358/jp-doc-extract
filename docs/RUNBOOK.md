@@ -28,11 +28,13 @@ python src/pipeline.py samples --batch -o output
 Expected:
 
 ```text
-OK  sample_electricity_invoice.pdf → electricity_invoice fields=7 ...
-OK  sample_gas_delivery.pdf → gas_invoice fields=5 ...
-OK  sample_activity_energy.csv → activity_table fields=4 ...
+OK  sample_electricity_invoice.pdf → electricity_invoice journal=draft ...
+OK  sample_gas_delivery.pdf → gas_invoice journal=draft ...
+OK  sample_vendor_invoice.pdf → vendor_invoice journal=draft ...
+OK  sample_activity_energy.csv → activity_table journal=skipped (no amount)
 
-Batch: 3/3 OK → output/batch_summary.json
+Batch: 4/4 OK → output/batch_summary.json
+python scripts/check_journal.py   # debit == credit
 ```
 
 ## 4. Use your own files (local only — do not commit)
@@ -70,9 +72,11 @@ Use only synthetic or approved test data until production trust layer is in plac
 
 ```bash
 python src/pipeline.py samples --batch -o docs/evidence
-copy docs\evidence\*_draft.json docs\evidence\  # ensure evidence folder populated
+python scripts/check_journal.py
 python docs/make_screenshot.py
 ```
+
+Writes `docs/screenshots/01_setup.png` … `07_journal_json.png` (step 6–7 = journal CLI + JSON export).
 
 ## 8. Troubleshooting
 
@@ -90,7 +94,7 @@ python docs/make_screenshot.py
 This PoC                    Production hybrid
 ─────────────────────────────────────────────
 text_layer / paddle         JP OCR worker (Lambda)
-regex + csv_column          LLM field mapping (Bedrock/Azure when available)
-draft_fields JSON           Draft DB → CRM Draft object
+regex + journal_rules.json  LLM optional; rules first for 仕訳
+draft_fields + journal_draft Draft DB → HITL → accounting (no auto-post)
 evidence_history            Lineage metadata (snippet + external bbox ref)
 ```

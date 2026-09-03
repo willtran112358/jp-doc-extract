@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "tool": "jp-doc-extract",
   "status": "draft",
-  "created_at": "2026-09-01T06:45:03.915579+00:00",
+  "created_at": "2026-09-03T09:23:08.368474+00:00",
   "source_file": "sample_gas_delivery.pdf",
   "doc_type": "gas_invoice",
   "extract_method": "text_layer",
@@ -10,9 +10,21 @@
   "warning": null,
   "soft_warnings": [],
   "draft_fields": {
+    "payee": {
+      "value": "デモガス株式会社",
+      "confidence": 0.9
+    },
     "company_name": {
       "value": "デモガス株式会社",
       "confidence": 0.9
+    },
+    "item_category": {
+      "value": "都市ガス",
+      "confidence": 0.86
+    },
+    "tax_yen": {
+      "value": "49000",
+      "confidence": 0.84
     },
     "customer_name": {
       "value": "サンプル製造株式会社 本社工場",
@@ -37,12 +49,108 @@
     "activity_unit": {
       "value": "m3",
       "confidence": 0.82
+    },
+    "amount_yen": {
+      "value": "539000",
+      "confidence": 0.86
     }
+  },
+  "journal_draft": {
+    "status": "draft",
+    "balanced": true,
+    "gross": 539000,
+    "net": 490000,
+    "tax": 49000,
+    "payee": "デモガス株式会社",
+    "payee_code": "V-GAS",
+    "item": "都市ガス",
+    "lines": [
+      {
+        "side": "debit",
+        "account_code": "5110",
+        "account_name": "水道光熱費",
+        "dept": "FAC01",
+        "dept_name": "施設管理",
+        "amount": 343000,
+        "tax_code": "JCT10",
+        "item": "都市ガス"
+      },
+      {
+        "side": "debit",
+        "account_code": "5110",
+        "account_name": "水道光熱費",
+        "dept": "ADM01",
+        "dept_name": "総務",
+        "amount": 147000,
+        "tax_code": "JCT10",
+        "item": "都市ガス"
+      },
+      {
+        "side": "debit",
+        "account_code": "1400",
+        "account_name": "仮払消費税",
+        "dept": null,
+        "dept_name": null,
+        "amount": 49000,
+        "tax_code": "JCT10",
+        "item": "消費税"
+      },
+      {
+        "side": "credit",
+        "account_code": "2100",
+        "account_name": "未払金",
+        "dept": null,
+        "dept_name": null,
+        "amount": 539000,
+        "tax_code": "JCT10",
+        "item": "デモガス株式会社",
+        "payee": "デモガス株式会社",
+        "payee_code": "V-GAS"
+      }
+    ],
+    "next_step": "HITL confirm extract + journal; do not auto-post"
+  },
+  "hitl": {
+    "original": "sample_gas_delivery.pdf",
+    "extract_fields": [
+      "payee",
+      "company_name",
+      "item_category",
+      "tax_yen",
+      "customer_name",
+      "invoice_no",
+      "invoice_date",
+      "billing_period",
+      "activity_amount",
+      "activity_unit",
+      "amount_yen"
+    ],
+    "journal": "draft",
+    "approval": null,
+    "registered": null
   },
   "evidence_history": [
     {
+      "field": "payee",
+      "snippet": "支払先:デモガス株式会社",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
       "field": "company_name",
       "snippet": "デモガス株式会社",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
+      "field": "item_category",
+      "snippet": "品目:都市ガス",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
+      "field": "tax_yen",
+      "snippet": "消費税(10%):49,000円",
       "page": 1,
       "source": "regex_jp"
     },
@@ -81,8 +189,32 @@
       "snippet": "ガス使用量\n4,850 m3",
       "page": 1,
       "source": "regex_jp"
+    },
+    {
+      "field": "amount_yen",
+      "snippet": "ご請求額合計(税込)\n539,000円",
+      "page": 1,
+      "source": "regex_jp"
+    },
+    {
+      "field": "payee",
+      "snippet": "デモガス株式会社 → V-GAS",
+      "page": 1,
+      "source": "journal_rule"
+    },
+    {
+      "field": "item_category",
+      "snippet": "都市ガス → 5110 水道光熱費",
+      "page": 1,
+      "source": "journal_rule"
+    },
+    {
+      "field": "allocation",
+      "snippet": "施設管理 70% / 総務 30%",
+      "page": 1,
+      "source": "journal_rule"
     }
   ],
-  "text_preview": "都市ガス供給計量票(伝票)\nデモガス株式会社\n発行日:2024年6月5日\n伝票番号:GAS-2024-05-00002\n供給先名:サンプル製造株式会社 本社工場\n計量期間:2024年5月1日~2024年5月31日\n都市ガス使用量\n4,850 m3\n※本書類は技術検証用の合成サンプルです。",
-  "next_step": "Human review -> confirm -> downstream system (not included in this PoC)"
+  "text_preview": "都市ガス供給計量票(伝票)\nデモガス株式会社\n発行日:2024年6月5日\n伝票番号:GAS-2024-05-00002\n支払先:デモガス株式会社\n供給先名:サンプル製造株式会社 本社工場\n計量期間:2024年5月1日~2024年5月31日\n品目:都市ガス\n都市ガス使用量\n4,850 m3\nご請求額合計(税込)\n539,000円\n消費税(10%):49,000円\n※本書類は技術検証用の合成サンプルです。",
+  "next_step": "HITL: original + extract + journal_draft → confirm (no auto-post)"
 }
